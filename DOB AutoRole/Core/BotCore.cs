@@ -16,7 +16,7 @@ namespace DOB_AutoRole.Core
     {
         internal DiscordSocketClient Client { get; }
         internal LiteDatabase Database { get; }
-        private CommandService Commands { get; }
+        internal CommandService Commands { get; }
         private DependencyMap Map { get; }
 
         private static BotCore BotInstance { get; set; }
