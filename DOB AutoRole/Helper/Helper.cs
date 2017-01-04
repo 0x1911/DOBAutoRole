@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace DOB_AutoRole.Helper
@@ -22,7 +23,6 @@ namespace DOB_AutoRole.Helper
 
                 if (!d.Exists)
                 {
-                    Debug("Creating working directory...");
                     Directory.CreateDirectory(tempPath);
                 }
 
