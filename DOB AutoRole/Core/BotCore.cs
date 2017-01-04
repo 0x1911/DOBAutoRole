@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using LiteDB;
+using static DOB_AutoRole.Helper.Helper;
 
 namespace DOB_AutoRole.Core
 {
     internal class BotCore
     {
         internal DiscordSocketClient Client { get; }
+        internal LiteDatabase Database { get; }
         private CommandService Commands { get; }
         private DependencyMap Map { get; }
 
@@ -20,6 +23,8 @@ namespace DOB_AutoRole.Core
 
         private BotCore()
         {
+            Database = new LiteDatabase(WorkingDirectory + "config.db");
+
             Client = new DiscordSocketClient(new DiscordSocketConfig()
             {
                 LogLevel = LogSeverity.Debug
