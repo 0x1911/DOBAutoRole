@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -90,11 +91,17 @@ namespace DOB_AutoRole.Core
                  return Task.CompletedTask;
              };
 
+            Client.UserJoined += async (user) =>
+            {
+                var memberRole = from r in user.Guild.Roles where r.Name.ToLower() == "member" select r;
+                await user.AddRolesAsync(memberRole);
+            };
+
             await InstallCommandsAsync();
 
             await Client.LoginAsync(TokenType.Bot, token);
 
-            await Client.ConnectAsync();
+            await Client.ConnectAsync();            
         }
 
         internal async Task DisconnectAsync()
