@@ -104,7 +104,7 @@ namespace DOB_AutoRole.Modules
 
             eb.AddField((efb) =>
             {
-                efb.Name = "Nep";
+                efb.Name = "Bot";
                 efb.IsInline = true;
                 efb.Value = $"architecture:\t{System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture}\nup time:\t{(DateTime.Now - proc.StartTime).ToString(@"d'd 'hh\:mm\:ss")}\nmemory:\t{formatRamValue(proc.PagedMemorySize64).ToString("f2")} {formatRamUnit(proc.PagedMemorySize64)}\nprocessor time:\t{proc.TotalProcessorTime.ToString(@"d'd 'hh\:mm\:ss")}";
             });
@@ -129,7 +129,7 @@ namespace DOB_AutoRole.Modules
             await Context.Channel.SendMessageAsync("", false, eb);
         }
 
-        [Command("ping"), Summary("Returns the ping from the nep's server to discord's servers.")]
+        [Command("ping"), Summary("Returns the ping from the server to discord's servers.")]
         public async Task PingAsync()
         {
             await ReplyAsync($":ping_pong: pong {BotCore.Instance.Client.Latency} ms");

@@ -21,7 +21,7 @@ class Program
             Console.WriteLine("Please give your bot configuration a name: ");
             var name = Console.ReadLine();
 
-            Console.WriteLine("Ok, now lets get serious. On which discord bot token does your nep listen? ");
+            Console.WriteLine("Ok, now lets get serious. On which discord bot token does your bot listen? ");
             var token = Console.ReadLine();
 
             Console.WriteLine("Ok, I got it.");
