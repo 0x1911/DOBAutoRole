@@ -54,12 +54,12 @@ namespace DOB_AutoRole.Core
 
         private async Task InstallCommandsAsync()
         {
-            Client.MessageReceived += Client_MessageReceived;
+            Client.MessageReceived += Client_MessageReceivedAsync;
 
             await Commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
-        private async Task Client_MessageReceived(SocketMessage msg)
+        private async Task Client_MessageReceivedAsync(SocketMessage msg)
         {
             var message = msg as SocketUserMessage;
             if (message == null)
@@ -97,7 +97,7 @@ namespace DOB_AutoRole.Core
             await Client.ConnectAsync();
         }
 
-        internal async void DisconnectAsync()
+        internal async Task DisconnectAsync()
         {
             await Client.DisconnectAsync();
             await Client.LogoutAsync();

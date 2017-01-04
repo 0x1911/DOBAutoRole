@@ -65,7 +65,8 @@ class Program
             {
                 case "stop":
                 case "exit":
-                    Task.Run(() => BotCore.Instance.DisconnectAsync()).ContinueWith(_ => exit = true);
+                    BotCore.Instance.DisconnectAsync();
+                    exit = true;
                     break;
             }
         }
