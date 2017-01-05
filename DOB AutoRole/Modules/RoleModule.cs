@@ -15,30 +15,18 @@ namespace DOB_AutoRole.Modules
     public class RoleModule : ModuleBase
     {
         [Command, Alias("link"), Summary("links your discord account to a forum account")]
-        public async Task Link([Summary("your profile link")] string link)
+        public async Task Link([Summary("your auth key")] string authKey)
         {
-            if (link == null || link == string.Empty)
-                throw new ArgumentNullException("Please enter a link to your forum profile");
+            var db = BotCore.Instance.Database.GetCollection<UserSetting>("users");
+            var user = db.FindOne(x => x.Id == Context.User.Id);
 
-            if (!link.Contains("https://v5dev.xyz/forum/index.php?action=profile;u="))
-                throw new ArgumentException("Please enter a valid profile url!");
+            user.Token = authKey;
+            await user.UpdateUserRole();
 
-            var hc = new HttpClient();
-            var answer = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Get, link));
-            var html = await answer.Content.ReadAsStringAsync();
-
-            var roles = new string[] { "silver", "gold", "platin", "tester" };
-
-            foreach (var role in roles)
-                if (html.ToLower().Contains(role.ToLower()))
-                {
-                    var memberRole = from r in Context.Guild.Roles where r.Name.ToLower() == role.ToLower() select r;
-                    await (await Context.Guild.GetUserAsync(Context.User.Id)).AddRolesAsync(memberRole);
-                    await ReplyAsync($"{Context.User.Username} has been added to **{memberRole.FirstOrDefault().Name}**.");
-                    return;
-                }
-
-            throw new Exception("Unable to find a role matching your profile.");
+            if (UserSetting.Licenses.Contains(user.License))
+                await ReplyAsync($"Your {user.License} license has been saved.");
+            else
+                throw new Exception("No license for your auth key was found.");
         }
     }
 }

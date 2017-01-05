@@ -17,6 +17,7 @@ namespace DOB_AutoRole.Core
         internal DiscordSocketClient Client { get; }
         internal LiteDatabase Database { get; }
         internal CommandService Commands { get; }
+        internal Configuration Configuration { get; private set; }
         private DependencyMap Map { get; }
 
         private static BotCore BotInstance { get; set; }
@@ -83,8 +84,10 @@ namespace DOB_AutoRole.Core
                 await message.Channel.SendMessageAsync(result.ErrorReason);
         }
 
-        internal async void LaunchAsync(string token)
+        internal async void LaunchAsync(Configuration config)
         {
+            Configuration = config;
+
             Client.Log += (message) =>
              {
                  Console.WriteLine($"{DateTime.Now}: ({message.Severity}) {message.Message}");
@@ -95,11 +98,72 @@ namespace DOB_AutoRole.Core
             {
                 var memberRole = from r in user.Guild.Roles where r.Name.ToLower() == "member" select r;
                 await user.AddRolesAsync(memberRole);
+
+                var setting = new UserSetting()
+                {
+                    Id = user.Id
+                };
+
+                await setting.CheckInformUser();
+
+                var db = Database.GetCollection<UserSetting>("users");
+                db.Insert(setting);
+            };
+
+            Client.UserLeft += (user) =>
+            {
+                var db = Database.GetCollection<UserSetting>("users");
+                db.Delete(x => x.Id == user.Id);
+
+                return Task.CompletedTask;
+            };
+
+            Client.Ready += async () =>
+            {
+                await Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        var db = Database.GetCollection<UserSetting>("users");
+                        var users = db.FindAll();
+
+                        var guild = (from g in Instance.Client.Guilds where g.Id == 265924970469654528 select g).FirstOrDefault();
+
+                        //still not everything loaded.
+                        if (guild == null)
+                            continue;
+
+                        await guild.DownloadUsersAsync();
+
+                        foreach (var user in guild.Users)
+                        {
+                            if (!db.Exists(x => x.Id == user.Id))
+                            {
+                                var setting = new UserSetting()
+                                {
+                                    Id = user.Id
+                                };
+
+                                db.Insert(setting);
+                            }
+                        }
+
+                        foreach (var user in users)
+                        {
+                            await user.UpdateUserRole();
+                            await user.CheckInformUser();
+
+                            db.Update(user);
+
+                            await Task.Delay(5 * 1000);// 5 seconds to avoid flooding too fast
+                        }
+                    }
+                });
             };
 
             await InstallCommandsAsync();
 
-            await Client.LoginAsync(TokenType.Bot, token);
+            await Client.LoginAsync(TokenType.Bot, Configuration.Token);
 
             await Client.ConnectAsync();            
         }

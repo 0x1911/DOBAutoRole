@@ -24,12 +24,16 @@ class Program
             Console.WriteLine("Ok, now lets get serious. On which discord bot token does your bot listen? ");
             var token = Console.ReadLine();
 
+            Console.WriteLine("Finally tell me your v5dev api key, please.");
+            var apiKey = Console.ReadLine();
+
             Console.WriteLine("Ok, I got it.");
 
             config = new Configuration
             {
                 Token = token,
-                FriendlyName = name
+                FriendlyName = name,
+                V5ApiKey = apiKey
             };
 
             configDb.Insert(config);
@@ -53,7 +57,7 @@ class Program
 
 
         // now start the bot
-        BotCore.Instance.LaunchAsync(config.Token);
+        BotCore.Instance.LaunchAsync(config);
 
         var exit = false;
 

@@ -26,7 +26,6 @@ namespace DOB_AutoRole.Helper
                     Directory.CreateDirectory(tempPath);
                 }
 
-
                 return tempPath;
             }
         }
