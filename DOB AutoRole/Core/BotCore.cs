@@ -104,7 +104,7 @@ namespace DOB_AutoRole.Core
                     Id = user.Id
                 };
 
-                await setting.CheckInformUser();
+                //await setting.CheckInformUser();
 
                 var db = Database.GetCollection<UserSetting>("users");
                 db.Insert(setting);
@@ -120,20 +120,20 @@ namespace DOB_AutoRole.Core
 
             Client.Ready += async () =>
             {
-                await Task.Run(async () =>
+                Task.Run(async () =>
                 {
                     while (true)
                     {
                         var db = Database.GetCollection<UserSetting>("users");
                         var users = db.FindAll();
 
-                        var guild = (from g in Instance.Client.Guilds where g.Id == 265924970469654528 select g).FirstOrDefault();
+                        var guild = (from g in Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
 
                         //still not everything loaded.
                         if (guild == null)
                             continue;
 
-                        await guild.DownloadUsersAsync();
+                        //await guild.DownloadUsersAsync();
 
                         foreach (var user in guild.Users)
                         {
@@ -148,14 +148,16 @@ namespace DOB_AutoRole.Core
                             }
                         }
 
-                        foreach (var user in users)
+                        for (var i = 0; i < users.Count(); i++)
                         {
+                            var user = users.ElementAt(i);
+
                             await user.UpdateUserRole();
                             await user.CheckInformUser();
 
                             db.Update(user);
 
-                            await Task.Delay(5 * 1000);// 5 seconds to avoid flooding too fast
+                            Task.Delay(5 * 1000); //avoid v5 server flooding
                         }
                     }
                 });
@@ -165,7 +167,7 @@ namespace DOB_AutoRole.Core
 
             await Client.LoginAsync(TokenType.Bot, Configuration.Token);
 
-            await Client.ConnectAsync();            
+            await Client.ConnectAsync();
         }
 
         internal async Task DisconnectAsync()

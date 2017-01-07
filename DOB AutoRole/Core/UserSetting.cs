@@ -6,15 +6,20 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
+using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 
 namespace DOB_AutoRole.Core
 {
-    public class UserSetting
+    internal class UserSettingsHelper
     {
         internal static string[] Licenses => new string[] { "Platin", "Gold", "Silver", "Beta Tester" };
         internal static string[] Roles => new string[] { "platin", "gold", "silver", "tester" };
         internal static string[] ExcludeRoles => new string[] { "staff", "mod", "vip", "bots" };
+    }
+
+    public class UserSetting
+    {
         public ulong Id { get; set; }
         public string Token { get; set; }
         public int LastChecked { get; set; }
@@ -35,7 +40,7 @@ namespace DOB_AutoRole.Core
 
             var oldLicense = License;
 
-            if (userInfo.result)
+            if ((bool)userInfo.result)
             {
                 License = userInfo.type;
                 Username = userInfo.real_name;
@@ -48,29 +53,16 @@ namespace DOB_AutoRole.Core
                 Username = "";
             }
 
-            if (oldLicense != License)
-            {
-                await RemoveRoles();
-                await AddRole(Roles[Array.IndexOf(Licenses, License)]);
-            }
-        }
 
-        public async Task AddRole(string role)
-        {
             var guild = (from g in BotCore.Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
             var user = guild.GetUser(Id);
-            var roles = from r in guild.Roles where r.Name == role select r;
+            var removeRoles = from r in guild.Roles where UserSettingsHelper.Roles.Contains(r.Name) select r;
 
-            await user.AddRolesAsync(roles);
-        }
 
-        public async Task RemoveRoles()
-        {
-            var guild = (from g in BotCore.Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
-            var user = guild.GetUser(Id);
-            var roles = from r in guild.Roles where Roles.Contains(r.Name) select r;
+            var addRoleName = UserSettingsHelper.Licenses.Contains(License) ? UserSettingsHelper.Roles[Array.IndexOf(UserSettingsHelper.Licenses, License)] : null;
+            var addRoles = from r in guild.Roles where r.Name == addRoleName select r;
 
-            await user.RemoveRolesAsync(roles);
+            await user.ChangeRolesAsync(addRoles, removeRoles);
         }
 
         public async Task UpdateUserRole()
@@ -80,21 +72,21 @@ namespace DOB_AutoRole.Core
 
         public async Task CheckInformUser()
         {
-            // wenn eine Lizenz existiert dann aufhören
-            if (Licenses.Contains(License))
+            // stop if license exists.
+            if (UserSettingsHelper.Licenses.Contains(License))
                 return;
 
-            // maximal alle 3 Tage
+            // only every 3 days
             if ((DateTime.Now - LastInformed).TotalDays < 3)
                 return;
 
             var guild = (from g in BotCore.Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
             var user = guild.GetUser(Id);
-            var excludeRoles = from r in guild.Roles where ExcludeRoles.Contains(r.Name) select r;
+            var excludeRoles = from r in guild.Roles where UserSettingsHelper.ExcludeRoles.Contains(r.Name) select r;
 
             foreach (var er in excludeRoles)
                 if (user.RoleIds.Contains(er.Id))
-                    return; // Die wollen wir nicht weiter belästigen
+                    return; // Do not disturb 
 
 
             var channel = await user.CreateDMChannelAsync();

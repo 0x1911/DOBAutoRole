@@ -17,13 +17,16 @@ namespace DOB_AutoRole.Modules
         [Command, Alias("link"), Summary("links your discord account to a forum account")]
         public async Task Link([Summary("your auth key")] string authKey)
         {
+            if (Context.Guild != null)
+                await Context.Message.DeleteAsync();
+
             var db = BotCore.Instance.Database.GetCollection<UserSetting>("users");
-            var user = db.FindOne(x => x.Id == Context.User.Id);
+            var user = db.Find(x => x.Id == Context.User.Id).FirstOrDefault();
 
             user.Token = authKey;
             await user.UpdateUserRole();
 
-            if (UserSetting.Licenses.Contains(user.License))
+            if (UserSettingsHelper.Licenses.Contains(user.License))
                 await ReplyAsync($"Your {user.License} license has been saved.");
             else
                 throw new Exception("No license for your auth key was found.");
