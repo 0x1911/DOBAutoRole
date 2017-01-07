@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -15,7 +16,8 @@ namespace DOB_AutoRole.Core
     {
         internal DiscordSocketClient Client { get; }
         internal LiteDatabase Database { get; }
-        private CommandService Commands { get; }
+        internal CommandService Commands { get; }
+        internal Configuration Configuration { get; private set; }
         private DependencyMap Map { get; }
 
         private static BotCore BotInstance { get; set; }
@@ -82,17 +84,88 @@ namespace DOB_AutoRole.Core
                 await message.Channel.SendMessageAsync(result.ErrorReason);
         }
 
-        internal async void LaunchAsync(string token)
+        internal async void LaunchAsync(Configuration config)
         {
+            Configuration = config;
+
             Client.Log += (message) =>
              {
                  Console.WriteLine($"{DateTime.Now}: ({message.Severity}) {message.Message}");
                  return Task.CompletedTask;
              };
 
+            Client.UserJoined += async (user) =>
+            {
+                var memberRole = from r in user.Guild.Roles where r.Name.ToLower() == "member" select r;
+                await user.AddRolesAsync(memberRole);
+
+                var setting = new UserSetting()
+                {
+                    Id = user.Id
+                };
+
+                await setting.CheckInformUser();
+
+                var db = Database.GetCollection<UserSetting>("users");
+                db.Insert(setting);
+            };
+
+            Client.UserLeft += (user) =>
+            {
+                var db = Database.GetCollection<UserSetting>("users");
+                db.Delete(x => x.Id == user.Id);
+
+                return Task.CompletedTask;
+            };
+
+            Client.Ready += async () =>
+            {
+                Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        var db = Database.GetCollection<UserSetting>("users");
+                        var users = db.FindAll();
+
+                        var guild = (from g in Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
+
+                        //still not everything loaded.
+                        if (guild == null)
+                            continue;
+
+                        //await guild.DownloadUsersAsync();
+
+                        foreach (var user in guild.Users)
+                        {
+                            if (!db.Exists(x => x.Id == user.Id))
+                            {
+                                var setting = new UserSetting()
+                                {
+                                    Id = user.Id
+                                };
+
+                                db.Insert(setting);
+                            }
+                        }
+
+                        for (var i = 0; i < users.Count(); i++)
+                        {
+                            var user = users.ElementAt(i);
+
+                            await user.UpdateUserRole();
+                            await user.CheckInformUser();
+
+                            db.Update(user);
+
+                            await Task.Delay(5 * 1000); //avoid v5 server flooding
+                        }
+                    }
+                });
+            };
+
             await InstallCommandsAsync();
 
-            await Client.LoginAsync(TokenType.Bot, token);
+            await Client.LoginAsync(TokenType.Bot, Configuration.Token);
 
             await Client.ConnectAsync();
         }

@@ -11,7 +11,7 @@ namespace DOB_AutoRole.Helper
         {
             get
             {
-                var tempPath = Environment.GetEnvironmentVariable("appdata") + @"\Nep Bot";
+                var tempPath = Environment.GetEnvironmentVariable("appdata") + @"\RoleBot";
                 var d = new DirectoryInfo(tempPath);
 
                 tempPath = d.FullName;
@@ -25,7 +25,6 @@ namespace DOB_AutoRole.Helper
                 {
                     Directory.CreateDirectory(tempPath);
                 }
-
 
                 return tempPath;
             }
