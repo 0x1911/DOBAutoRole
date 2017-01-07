@@ -157,7 +157,7 @@ namespace DOB_AutoRole.Core
 
                             db.Update(user);
 
-                            Task.Delay(5 * 1000); //avoid v5 server flooding
+                            await Task.Delay(5 * 1000); //avoid v5 server flooding
                         }
                     }
                 });

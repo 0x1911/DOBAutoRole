@@ -15,7 +15,7 @@ namespace DOB_AutoRole.Modules
     public class RoleModule : ModuleBase
     {
         [Command, Alias("link"), Summary("links your discord account to a forum account")]
-        public async Task LinkAsync([Summary("your auth key")] string authKey)
+        public async Task Link([Summary("your auth key")] string authKey)
         {
             if (Context.Guild != null)
                 await Context.Message.DeleteAsync();
