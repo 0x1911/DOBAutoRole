@@ -104,7 +104,7 @@ namespace DOB_AutoRole.Core
                     Id = user.Id
                 };
 
-                //await setting.CheckInformUser();
+                await setting.CheckInformUser();
 
                 var db = Database.GetCollection<UserSetting>("users");
                 db.Insert(setting);
