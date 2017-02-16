@@ -18,6 +18,8 @@ namespace DOB_AutoRole.Modules
         [Command, Alias("link"), Summary("links your discord account to a forum account")]
         public async Task Link([Summary("your auth key")] string authKey)
         {
+            await Context.Channel.TriggerTypingAsync();
+
             Debug($"Received auth key {authKey}");
             if (Context.Guild != null)
                 await Context.Message.DeleteAsync();
@@ -41,9 +43,11 @@ namespace DOB_AutoRole.Modules
         [Command("info"), Alias("i"), Summary("displays information about a users license")]
         public async Task Info([Summary("the user mentions whose information should be displayd")] string userMention = null)
         {
+            await Context.Channel.TriggerTypingAsync();
+
             var db = BotCore.Instance.Database.GetCollection<UserSetting>("users");
 
-            var roles = Context.Guild.Roles;
+            var roles = Context.Guild.Roles.OrderBy((r) => -r.Position);
 
 
             List<UserSetting> users = new List<UserSetting>();
@@ -56,8 +60,6 @@ namespace DOB_AutoRole.Modules
 
             foreach (var u in users)
             {
-                await Context.Channel.TriggerTypingAsync();
-
                 var du = await Context.Guild.GetUserAsync(u.Id);
                 var c = new Color(102, 153, 204);
 
@@ -74,10 +76,10 @@ namespace DOB_AutoRole.Modules
                 {
                     Color = c
                 };
-                
+
                 eb.AddField((efb) =>
                 {
-                    efb.Name = du.Nickname;
+                    efb.Name = du.Nickname ?? du.Username;
                     efb.Value = $"license:\t{u.License}\nforum name:\t{u.Username}\njoined discord:\t{du.JoinedAt}";
                 });
 

@@ -79,10 +79,8 @@ namespace DOB_AutoRole.Core
 
             if (!message.HasCharPrefix('!', ref argPos))
                 return;
-            
-            var context = new CommandContext(Client, message);
 
-            await message.Channel.TriggerTypingAsync();
+            var context = new CommandContext(Client, message);
 
             var result = await Commands.ExecuteAsync(context, argPos, Map);
 
