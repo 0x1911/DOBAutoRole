@@ -9,6 +9,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using LiteDB;
 using static DOB_AutoRole.Helper.Helper;
+using static DOB_AutoRole.Helper.Logger;
 
 namespace DOB_AutoRole.Core
 {
@@ -25,7 +26,9 @@ namespace DOB_AutoRole.Core
 
         private BotCore()
         {
+            Info("Creating bot core...");
             Database = new LiteDatabase(WorkingDirectory + "config.db");
+            Info("Database loaded.");
 
             Client = new DiscordSocketClient(new DiscordSocketConfig()
             {
@@ -40,14 +43,17 @@ namespace DOB_AutoRole.Core
         {
             get
             {
+                Debug("Accessing bot instance.");
                 if (BotInstance != null)
                     return BotInstance;
 
+                Debug("Locking bot instance.");
                 lock (Locker)
                 {
                     if (BotInstance != null)
                         return BotInstance;
 
+                    Debug("Creating new bot instance.");
                     BotInstance = new BotCore();
                 }
                 return BotInstance;
@@ -76,8 +82,6 @@ namespace DOB_AutoRole.Core
 
             var context = new CommandContext(Client, message);
 
-            await message.Channel.TriggerTypingAsync();
-
             var result = await Commands.ExecuteAsync(context, argPos, Map);
 
             if (!result.IsSuccess && !result.ErrorReason.ToLower().Contains("unknown command"))  // avoid logging unknown command for now...
@@ -86,16 +90,18 @@ namespace DOB_AutoRole.Core
 
         internal async void LaunchAsync(Configuration config)
         {
+            Info("Launching...");
             Configuration = config;
 
             Client.Log += (message) =>
              {
-                 Console.WriteLine($"{DateTime.Now}: ({message.Severity}) {message.Message}");
+                 Log(message.Severity, message.Message);
                  return Task.CompletedTask;
              };
 
             Client.UserJoined += async (user) =>
             {
+                Info($"User {user.Nickname} joined.");
                 var memberRole = from r in user.Guild.Roles where r.Name.ToLower() == "member" select r;
                 await user.AddRolesAsync(memberRole);
 
@@ -112,6 +118,7 @@ namespace DOB_AutoRole.Core
 
             Client.UserLeft += (user) =>
             {
+                Info($"User {user.Nickname} left.");
                 var db = Database.GetCollection<UserSetting>("users");
                 db.Delete(x => x.Id == user.Id);
 
@@ -124,8 +131,11 @@ namespace DOB_AutoRole.Core
                 {
                     while (true)
                     {
+                        Info("Restarting users loop...");
                         var db = Database.GetCollection<UserSetting>("users");
                         var users = db.FindAll();
+
+                        Info($"We found {users.Count()} users.");
 
                         var guild = (from g in Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
 
@@ -144,6 +154,7 @@ namespace DOB_AutoRole.Core
                                     Id = user.Id
                                 };
 
+                                Warn($"Not existing user found: {user.Nickname}, joined: {user.JoinedAt}");
                                 db.Insert(setting);
                             }
                         }
