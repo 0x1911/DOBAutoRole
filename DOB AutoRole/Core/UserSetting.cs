@@ -52,7 +52,7 @@ namespace DOB_AutoRole.Core
                 if ((bool)userInfo.result)
                 {
                     License = userInfo.type;
-                    Username = userInfo.real_name;
+                    Username = userInfo.public_name;
                     LastChecked = userInfo.timestamp;
                 }
                 else
