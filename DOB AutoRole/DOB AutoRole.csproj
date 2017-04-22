@@ -1,23 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-  <PropertyGroup Label="Configuration">
-    <RootNamespace>DOB_AutoRole</RootNamespace>
-    <PlatformTarget>
-    </PlatformTarget>
-    <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <OutputType>exe</OutputType>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <EmbeddedResource Include="**\*.resx" />
+    <PackageReference Include="Discord.Net" Version="1.0.0-rc" />
+    <PackageReference Include="LiteDB" Version="3.1.0" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="1.0.0-rc-00544" />
-    <PackageReference Include="LiteDB" Version="3.0.0-beta3" />
-    <PackageReference Include="Microsoft.NETCore.App" Version="1.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-  </ItemGroup>
+
 </Project>

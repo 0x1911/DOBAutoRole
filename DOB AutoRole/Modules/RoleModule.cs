@@ -15,7 +15,7 @@ namespace DOB_AutoRole.Modules
     [Group("role")]
     public class RoleModule : ModuleBase
     {
-        [Command, Alias("link"), Summary("links your discord account to a forum account")]
+        [Command("link"), Alias("l"), Summary("links your discord account to a forum account")]
         public async Task Link([Summary("your auth key")] string authKey)
         {
             await Context.Channel.TriggerTypingAsync();

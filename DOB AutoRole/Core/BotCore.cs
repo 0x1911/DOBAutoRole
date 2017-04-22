@@ -94,10 +94,10 @@ namespace DOB_AutoRole.Core
             Configuration = config;
 
             Client.Log += (message) =>
-             {
-                 Log(message.Severity, message.Message);
-                 return Task.CompletedTask;
-             };
+            {
+                Log(message.Severity, message.Message);
+                return Task.CompletedTask;
+            };
 
             Client.UserJoined += async (user) =>
             {
@@ -125,65 +125,74 @@ namespace DOB_AutoRole.Core
                 return Task.CompletedTask;
             };
 
-            Client.Ready += async () =>
+            Client.Ready += () =>
             {
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
-                    while (true)
-                    {
-                        Info("Restarting users loop...");
-                        var db = Database.GetCollection<UserSetting>("users");
-                        var users = db.FindAll();
-
-                        Info($"We found {users.Count()} users.");
-
-                        var guild = (from g in Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
-
-                        //still not everything loaded.
-                        if (guild == null)
-                            continue;
-
-                        //await guild.DownloadUsersAsync();
-
-                        foreach (var user in guild.Users)
-                        {
-                            if (!db.Exists(x => x.Id == user.Id))
-                            {
-                                var setting = new UserSetting()
-                                {
-                                    Id = user.Id
-                                };
-
-                                Warn($"Not existing user found: {user.Nickname}, joined: {user.JoinedAt}");
-                                db.Insert(setting);
-                            }
-                        }
-
-                        for (var i = 0; i < users.Count(); i++)
-                        {
-                            var user = users.ElementAt(i);
-
-                            await user.UpdateUserRole();
-                            await user.CheckInformUser();
-
-                            db.Update(user);
-
-                            await Task.Delay(5 * 1000); //avoid v5 server flooding
-                        }
-                    }
+                    UserLoop();
                 });
+
+                return Task.CompletedTask;
             };
 
             await InstallCommandsAsync();
 
             await Client.LoginAsync(TokenType.Bot, Configuration.Token);
 
-            await Client.ConnectAsync();
+            await Client.StartAsync();
+        }
+
+        private async void UserLoop()
+        {
+            while (true)
+            {
+                Info("Restarting users loop...");
+                var db = Database.GetCollection<UserSetting>("users");
+                var users = db.FindAll();
+
+                Info($"We found {users.Count()} users.");
+
+                var guild = (from g in Instance.Client.Guilds where g.Name == "DOB - Dah Old Bot" select g).FirstOrDefault();
+
+                //still not everything loaded.
+                if (guild == null)
+                    continue;
+
+                //await guild.DownloadUsersAsync();
+
+                foreach (var user in guild.Users)
+                {
+                    if (!db.Exists(x => x.Id == user.Id))
+                    {
+                        var setting = new UserSetting()
+                        {
+                            Id = user.Id
+                        };
+
+                        Warn($"Not existing user found: {user.Nickname}, joined: {user.JoinedAt}");
+                        db.Insert(setting);
+                    }
+                }
+
+#if (!DEBUG)
+                for (var i = 0; i < users.Count(); i++)
+                {
+                    var user = users.ElementAt(i);
+
+                    await user.UpdateUserRole();
+                    await user.CheckInformUser();
+
+                    db.Update(user);
+
+                    await Task.Delay(5 * 1000); //avoid v5 server flooding
+                }
+#endif
+            }
         }
 
         internal async Task DisconnectAsync()
         {
-            await Client.DisconnectAsync();
+            await Client.StopAsync();
             await Client.LogoutAsync();
         }
     }

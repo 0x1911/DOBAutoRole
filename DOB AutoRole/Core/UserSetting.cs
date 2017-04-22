@@ -17,7 +17,7 @@ namespace DOB_AutoRole.Core
         internal static Color[] LicenseColors = new Color[] { new Color(163, 163, 163), new Color(221, 247, 0), new Color(94, 94, 94), new Color(255, 173, 0) };
         internal static string[] Licenses => new string[] { "Platin", "Gold", "Silver", "Beta Tester" };
         internal static string[] Roles => new string[] { "platin", "gold", "silver", "tester" };
-        internal static string[] ExcludeRoles => new string[] { "staff", "mod", "vip", "bots" };
+        internal static string[] ExcludeRoles => new string[] { "staff", "developer", "sales manager", "community manager", "super moderator", "moderator", "vip", "bots" };
     }
 
     public class UserSetting
@@ -72,9 +72,10 @@ namespace DOB_AutoRole.Core
                 var addRoleName = UserSettingsHelper.Licenses.Contains(License) ? UserSettingsHelper.Roles[Array.IndexOf(UserSettingsHelper.Licenses, License)] : null;
                 var addRoles = from r in guild.Roles where r.Name == addRoleName select r;
 
-                await user.ChangeRolesAsync(addRoles, removeRoles);
+                await user.RemoveRolesAsync(removeRoles);
+                await user.AddRolesAsync(addRoles);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Error(ex);
             }
@@ -105,9 +106,10 @@ namespace DOB_AutoRole.Core
             var user = guild.GetUser(Id);
             var excludeRoles = from r in guild.Roles where UserSettingsHelper.ExcludeRoles.Contains(r.Name) select r;
 
-            foreach (var er in excludeRoles)
-                if (user.RoleIds.Contains(er.Id))
-                    return; // Do not disturb 
+            if (excludeRoles.Any(er => user.Roles.Select(role => role.Id).Contains(er.Id)))
+            {
+                return; // Do not disturb 
+            }
 
             Info($"Remembering user {Id} to set license.");
             var channel = await user.CreateDMChannelAsync();
