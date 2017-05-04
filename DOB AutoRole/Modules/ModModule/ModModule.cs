@@ -73,7 +73,7 @@ namespace DOB_AutoRole.Modules.ModModule
         {
             if (Context.Guild.OwnerId != Context.User.Id)
             {
-                Debug("Mod setup was triggered by not an owner. Stopping...");
+                Debug("Mod setup was triggered, but not by an owner. Stopping...");
                 await ReplyAsync("This command is only available for the guild owner.");
                 return;
             }
@@ -96,7 +96,7 @@ namespace DOB_AutoRole.Modules.ModModule
                 db.Update(config);
                 await ReplyAsync($"Mod log channel has been set to <#{config.ModLog}>");
                 await (await Context.Guild.GetTextChannelAsync(config.ModLog)).SendMessageAsync(
-                    "This channel has been set to the mod log channel.");
+                    "This channel is now the moderation log channel.");
             }
 
         }
@@ -164,7 +164,7 @@ namespace DOB_AutoRole.Modules.ModModule
 
             if (Context.Message.MentionedUserIds.Count != 1)
             {
-                await ReplyAsync("You can only warn one user!");
+                await ReplyAsync("You can only warn one user at a time!");
                 return;
             }
 
@@ -173,7 +173,7 @@ namespace DOB_AutoRole.Modules.ModModule
             var warning = new UserStats()
             {
                 UserId = realUser.Id,
-                WarningPointsExpirationDate = DateTime.Now.AddDays(days),
+                ExpirationDate = DateTime.Now.AddDays(days),
                 WarningPoints = warningPoints
             };
 
@@ -213,8 +213,8 @@ namespace DOB_AutoRole.Modules.ModModule
 
             eb.AddField((efb) =>
             {
-                efb.Name = "Due date";
-                efb.Value = $"{warning.WarningPointsExpirationDate}";
+                efb.Name = "Expiration date";
+                efb.Value = $"{warning.ExpirationDate}";
                 efb.IsInline = true;
             });
 
@@ -269,7 +269,7 @@ namespace DOB_AutoRole.Modules.ModModule
                 }
 
                 var warnings = db.Find(x => x.UserId == id).Sum(warning => warning.WarningPoints);
-                var maxDate = db.Find(x => x.UserId == id).Max(warning => warning.WarningPointsExpirationDate);
+                var maxDate = db.Find(x => x.UserId == id).Max(warning => warning.ExpirationDate);
 
                 var eb = new EmbedBuilder()
                 {
