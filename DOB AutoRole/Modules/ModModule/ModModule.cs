@@ -154,6 +154,8 @@ namespace DOB_AutoRole.Modules.ModModule
         [Command("warn"), Summary("Warns a user.")]
         public async Task Warn([Summary("User mention")] string user, [Summary("How many points is this warning?")]int points = 1, [Summary("Days until this is removed")]int days = 30, [Summary("Reason for warning this user")]string reason = "")
         {
+            await Context.Message.DeleteAsync();
+
             if (!HasModAccess(Context.Guild, await Context.Guild.GetUserAsync(Context.User.Id)))
             {
                 await ReplyAsync("You are not allowed to use this!");
@@ -178,57 +180,58 @@ namespace DOB_AutoRole.Modules.ModModule
             var db = BotCore.Instance.Database.GetCollection<UserStats>("mod");
             db.Insert(warning);
 
+
+            //244 66 66
+            var eb = new EmbedBuilder()
+            {
+                Color = warning.Points > 0 ? new Color(255, 100, 0) : new Color(70, 245, 65),
+                ImageUrl = realUser.GetAvatarUrl(),
+                ThumbnailUrl = Context.User.GetAvatarUrl(ImageFormat.Png),
+                Title = $"{realUser.Username} (ID: {realUser.Id})"
+            };
+
+            eb.AddField((efb) =>
+            {
+                efb.Name = "Channel";
+                efb.Value = $"{Context.Channel}";
+                efb.IsInline = true;
+            });
+
+            eb.AddField((efb) =>
+            {
+                efb.Name = "Warned by";
+                efb.Value = Context.User.Username;
+                efb.IsInline = true;
+            });
+
+            eb.AddField((efb) =>
+            {
+                efb.Name = "Points";
+                efb.Value = $"{warning.Points}";
+                efb.IsInline = true;
+            });
+
+            eb.AddField((efb) =>
+            {
+                efb.Name = "Due date";
+                efb.Value = $"{warning.DueDate}";
+                efb.IsInline = true;
+            });
+
+
+            if (!string.IsNullOrEmpty(reason))
+                eb.AddField((efb) =>
+                {
+                    efb.Name = "Reason";
+                    efb.Value = $"{reason}";
+                });
+
             var log = await GetModLog(Context.Guild);
             if (log != null)
             {
-                //244 66 66
-                var eb = new EmbedBuilder()
-                {
-                    Color = warning.Points > 0 ? new Color(255, 100, 0) : new Color(70, 245, 65),
-                    ImageUrl = realUser.GetAvatarUrl(),
-                    ThumbnailUrl = Context.User.GetAvatarUrl(ImageFormat.Png),
-                    Title = $"{realUser.Username} (ID: {realUser.Id})"
-                };
-
-                eb.AddField((efb) =>
-                {
-                    efb.Name = "Channel";
-                    efb.Value = $"{Context.Channel}";
-                    efb.IsInline = true;
-                });
-
-                eb.AddField((efb) =>
-                {
-                    efb.Name = "Warned by";
-                    efb.Value = Context.User.Username;
-                    efb.IsInline = true;
-                });
-
-                eb.AddField((efb) =>
-                {
-                    efb.Name = "Points";
-                    efb.Value = $"{warning.Points}";
-                    efb.IsInline = true;
-                });
-
-                eb.AddField((efb) =>
-                {
-                    efb.Name = "Due date";
-                    efb.Value = $"{warning.DueDate}";
-                    efb.IsInline = true;
-                });
-
-
-                if (!string.IsNullOrEmpty(reason))
-                    eb.AddField((efb) =>
-                    {
-                        efb.Name = "Reason";
-                        efb.Value = $"{reason}";
-                    });
-
-
                 await log.SendMessageAsync("A user has been warned", false, eb);
             }
+            await (await realUser.CreateDMChannelAsync()).SendMessageAsync("You received a warning", false, eb);
         }
 
         [Command("check"), Summary("Checks a users warning points.")]
