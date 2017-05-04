@@ -6,7 +6,8 @@ namespace DOB_AutoRole.Modules.ModModule
 {
     public class UserStats
     {
-        public ulong Id { get; set; }
-
+        public ulong UserId { get; set; }
+        public DateTime DueDate { get; set; }
+        public int Points { get; set; }
     }
 }
