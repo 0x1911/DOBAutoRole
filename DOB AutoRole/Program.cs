@@ -6,25 +6,23 @@ class Program
 {
     static void Main(string[] args)
     {
-        // doing the configuration stuff
         Configuration config = null;
-
+        // first start up - configuration time?
         var configDb = BotCore.Instance.Database.GetCollection<Configuration>("configuration");
         var configs = configDb.FindAll();
-
         if (configs.Count() == 0)
         {
-            Console.WriteLine("Seems like this is your first start up. Let us configure your bot.");
-            Console.WriteLine("Please give your bot configuration a name: ");
+            Console.WriteLine("Couldn't find a valid configuration. Configuration time!");
+            Console.WriteLine("Choose a service bot configuration name: ");
             var name = Console.ReadLine();
 
-            Console.WriteLine("Ok, now lets get serious. On which discord bot token does your bot listen? ");
+            Console.WriteLine("Enter the discord token the bot is listening to:");
             var token = Console.ReadLine();
 
-            Console.WriteLine("Finally tell me your v5dev api key, please.");
+            Console.WriteLine("Set a valid v5^dev API key:");
             var apiKey = Console.ReadLine();
 
-            Console.WriteLine("Ok, I got it.");
+            Console.Write("\r\nThat's all i need for now, writing configuration file..");
 
             config = new Configuration
             {
@@ -35,16 +33,18 @@ class Program
 
             configDb.Insert(config);
             configDb.EnsureIndex(x => x.Token);
-        }
+
+            Console.Write(". done!\r\n");
+        } // do we have an existing configuration file already?
         else if (configs.Count() == 1)
         {
             config = configs.FirstOrDefault();
         }
-        else
+        else //do we have multiple configurations? let the user choose
         {
-            Console.WriteLine("Multiple configurations found.");
+            Console.WriteLine("Discovered " + configs.Count() + " configurations:");
             for (var i = 0; i < configs.Count(); i++)
-                Console.WriteLine($"{i}: { configs.ElementAt(i).FriendlyName}");
+                Console.WriteLine($"{i}:: { configs.ElementAt(i).FriendlyName}");
 
             Console.WriteLine("");
             Console.WriteLine("Please choose a configuration by number: ");

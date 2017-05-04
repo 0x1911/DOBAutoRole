@@ -152,7 +152,7 @@ namespace DOB_AutoRole.Modules.ModModule
         }
 
         [Command("warn"), Summary("Warns a user.")]
-        public async Task Warn([Summary("User mention")] string user, [Summary("How many points is this warning?")]int points = 1, [Summary("Days until this is removed")]int days = 30, [Summary("Reason for warning this user")]string reason = "")
+        public async Task Warn([Summary("User mention")] string user, [Summary("How many points is this warning?")]int warningPoints = 1, [Summary("Days until this is removed")]int days = 30, [Summary("Reason for warning this user")]string reason = "")
         {
             await Context.Message.DeleteAsync();
 
@@ -173,8 +173,8 @@ namespace DOB_AutoRole.Modules.ModModule
             var warning = new UserStats()
             {
                 UserId = realUser.Id,
-                DueDate = DateTime.Now.AddDays(days),
-                Points = points
+                WarningPointsExpirationDate = DateTime.Now.AddDays(days),
+                WarningPoints = warningPoints
             };
 
             var db = BotCore.Instance.Database.GetCollection<UserStats>("mod");
@@ -184,7 +184,7 @@ namespace DOB_AutoRole.Modules.ModModule
             //244 66 66
             var eb = new EmbedBuilder()
             {
-                Color = warning.Points > 0 ? new Color(255, 100, 0) : new Color(70, 245, 65),
+                Color = warning.WarningPoints > 0 ? new Color(255, 100, 0) : new Color(70, 245, 65),
                 ImageUrl = realUser.GetAvatarUrl(),
                 ThumbnailUrl = Context.User.GetAvatarUrl(ImageFormat.Png),
                 Title = $"{realUser.Username} (ID: {realUser.Id})"
@@ -207,14 +207,14 @@ namespace DOB_AutoRole.Modules.ModModule
             eb.AddField((efb) =>
             {
                 efb.Name = "Points";
-                efb.Value = $"{warning.Points}";
+                efb.Value = $"{warning.WarningPoints}";
                 efb.IsInline = true;
             });
 
             eb.AddField((efb) =>
             {
                 efb.Name = "Due date";
-                efb.Value = $"{warning.DueDate}";
+                efb.Value = $"{warning.WarningPointsExpirationDate}";
                 efb.IsInline = true;
             });
 
@@ -268,8 +268,8 @@ namespace DOB_AutoRole.Modules.ModModule
                     }
                 }
 
-                var warnings = db.Find(x => x.UserId == id).Sum(warning => warning.Points);
-                var maxDate = db.Find(x => x.UserId == id).Max(warning => warning.DueDate);
+                var warnings = db.Find(x => x.UserId == id).Sum(warning => warning.WarningPoints);
+                var maxDate = db.Find(x => x.UserId == id).Max(warning => warning.WarningPointsExpirationDate);
 
                 var eb = new EmbedBuilder()
                 {
