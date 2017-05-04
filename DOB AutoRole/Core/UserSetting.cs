@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
-using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using static DOB_AutoRole.Helper.Logger;
 
@@ -62,7 +58,7 @@ namespace DOB_AutoRole.Core
                     Username = "";
                 }
 
-                Info($"Old license: {oldLicense} new license: {License}");
+                Info($"Old license: {oldLicense}; Changed to new license: {License}");
 
                 var guild = (from g in BotCore.Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
                 var user = guild.GetUser(Id);
@@ -77,7 +73,7 @@ namespace DOB_AutoRole.Core
             }
             catch (Exception ex)
             {
-                Error(ex);
+                Error(ex.Message.ToString());
             }
 
             Info("Finished updating user.");
@@ -90,7 +86,7 @@ namespace DOB_AutoRole.Core
 
         public async Task CheckInformUser()
         {
-            Info($"Starting inform check for user {Id}");
+            Info($"Starting info check for user {Id}");
             Debug($"Last informed: {LastInformed}");
             Debug($"License: {License}");
 
@@ -113,7 +109,7 @@ namespace DOB_AutoRole.Core
 
             Info($"Remembering user {Id} to set license.");
             var channel = await user.CreateDMChannelAsync();
-            await channel.SendMessageAsync($"Hi. Your account is currently not assigned to a bot license. Please write `!role <your auth key>` to assign your license in this chat. **Please do not post in public server!**");
+            await channel.SendMessageAsync($"Hi there. Your account is currently not bound to a DOB user/auth key. To change that reply in here with `!role <your auth key>` to assign your license in this chat. **Note: Do not post your auth key in a public channel!**");
 
             LastInformed = DateTime.Now;
         }

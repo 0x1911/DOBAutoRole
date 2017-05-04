@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DOB_AutoRole.Core
+﻿namespace DOB_AutoRole.Core
 {
     public class Configuration
     {

@@ -37,7 +37,10 @@ namespace DOB_AutoRole.Modules
             if (UserSettingsHelper.Licenses.Contains(user.License))
                 await ReplyAsync($"Your {user.License} license has been saved.");
             else
-                throw new Exception("No license for your auth key was found.");
+            {
+                await ReplyAsync($"Couldn't find a valid license for the given auth key.");
+                throw new Exception($"No license for user id {user.Id} with {user.License} auth key was found.");
+            }
         }
 
         [Command("info"), Alias("i"), Summary("displays information about a users license")]
