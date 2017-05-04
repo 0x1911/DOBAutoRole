@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Discord.API;
 using Discord;
 using Discord.Commands;
-using DOB_AutoRole.Core;
-using static DOB_AutoRole.Helper.Logger;
+using DOBAR.Core;
+using static DOBAR.Helper.Logger;
 
-namespace DOB_AutoRole.Modules
+namespace DOBAR.Modules
 {
     [Group("role")]
     public class RoleModule : ModuleBase

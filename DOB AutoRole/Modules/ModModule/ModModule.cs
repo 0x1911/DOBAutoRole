@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using DOB_AutoRole.Core;
-using static DOB_AutoRole.Helper.Logger;
+using DOBAR.Core;
+using static DOBAR.Helper.Logger;
 
-namespace DOB_AutoRole.Modules.ModModule
+namespace DOBAR.Modules.ModModule
 {
     [Group("mod")]
     public class ModModule : ModuleBase

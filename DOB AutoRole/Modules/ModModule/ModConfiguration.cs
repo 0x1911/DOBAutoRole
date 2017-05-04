@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DOB_AutoRole.Modules.ModModule
+﻿
+namespace DOBAR.Modules.ModModule
 {
     public class ModConfiguration
     {

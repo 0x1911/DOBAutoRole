@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using DOB_AutoRole.Core;
+using DOBAR.Core;
 
 class Program
 {

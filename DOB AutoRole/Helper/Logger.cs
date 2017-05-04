@@ -5,7 +5,7 @@ using System.Text;
 using Discord;
 
 
-namespace DOB_AutoRole.Helper
+namespace DOBAR.Helper
 {
     internal static class Logger
     {

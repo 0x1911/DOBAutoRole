@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using DOB_AutoRole.Core;
+using DOBAR.Core;
 
-namespace DOB_AutoRole.Modules
+namespace DOBAR.Modules
 {
     public class SystemModule : ModuleBase
     {

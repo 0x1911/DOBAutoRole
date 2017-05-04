@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace DOB_AutoRole.Helper.v5API
+namespace DOBAR.Helper.v5API
 {
     public class Licenses
     {

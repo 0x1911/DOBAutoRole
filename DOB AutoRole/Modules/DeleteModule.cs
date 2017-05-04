@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace DOB_AutoRole.Modules
+namespace DOBAR.Modules
 {
     public class DeleteModule : ModuleBase
     {

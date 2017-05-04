@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace DOB_AutoRole.Helper
+namespace DOBAR.Helper
 {
     internal static class Helper
     {

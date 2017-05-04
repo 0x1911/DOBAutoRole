@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DOB_AutoRole.Modules.ModModule
+namespace DOBAR.Modules.ModModule
 {
     public class UserStats
     {

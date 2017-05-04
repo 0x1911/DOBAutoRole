@@ -6,10 +6,10 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using LiteDB;
-using static DOB_AutoRole.Helper.Helper;
-using static DOB_AutoRole.Helper.Logger;
+using static DOBAR.Helper.Helper;
+using static DOBAR.Helper.Logger;
 
-namespace DOB_AutoRole.Core
+namespace DOBAR.Core
 {
     internal class BotCore
     {

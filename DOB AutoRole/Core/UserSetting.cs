@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Newtonsoft.Json.Linq;
-using static DOB_AutoRole.Helper.Logger;
+using static DOBAR.Helper.Logger;
 
-namespace DOB_AutoRole.Core
+namespace DOBAR.Core
 {
     internal class UserSettingsHelper
     {

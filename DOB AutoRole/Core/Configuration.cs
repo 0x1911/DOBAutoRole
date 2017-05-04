@@ -1,4 +1,4 @@
-﻿namespace DOB_AutoRole.Core
+﻿namespace DOBAR.Core
 {
     public class Configuration
     {
