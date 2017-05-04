@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 DOB AutoRole/logs.txt
+DOBAR/logs.txt

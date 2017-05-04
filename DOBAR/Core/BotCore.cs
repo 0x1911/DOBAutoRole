@@ -133,11 +133,21 @@ namespace DOBAR.Core
                 return Task.CompletedTask;
             };
 
-            await InstallCommandsAsync();
-
-            await Client.LoginAsync(TokenType.Bot, Configuration.Token);
-
-            await Client.StartAsync();
+            //connect to the discord server and login
+            try
+            {
+                await InstallCommandsAsync();
+                await Client.LoginAsync(TokenType.Bot, Configuration.Token);
+                await Client.StartAsync();
+            }
+            catch (Exception crap)
+            {
+                Error("[LaunchAsync] " + crap.Message.ToString());
+                Error("[LaunchAsync] Configuration used for " + Configuration.FriendlyName);
+                Error("[LaunchAsync] token: " + Configuration.Token);
+                Error("[LaunchAsync] v5 APi key: " + Configuration.V5ApiKey);
+            }
+    
         }
 
         private async void UserLoop()
