@@ -12,7 +12,7 @@ namespace DOB_AutoRole.Modules
         [Command("about"), Summary("Displays an about message.")]
         public async Task AboutAsync()
         {
-            await ReplyAsync("Copyright © 2017 by Serraniel.\nMade using Discord.Net and LiteDB.");
+            await ReplyAsync("Copyright © 2017 by Serraniel.\nMade using brain.exe, C#, Discord.Net and LiteDB.");
         }
 
         [Command("help"), Alias("h"), Summary("Displays the help.")]

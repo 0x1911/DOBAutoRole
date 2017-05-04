@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -110,7 +108,7 @@ namespace DOB_AutoRole.Core
                     Id = user.Id
                 };
 
-                await setting.CheckInformUser();
+                await setting.NotifyFFAUser();
 
                 var db = Database.GetCollection<UserSetting>("users");
                 db.Insert(setting);

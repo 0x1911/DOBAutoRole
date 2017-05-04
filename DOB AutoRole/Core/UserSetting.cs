@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Newtonsoft.Json.Linq;
@@ -35,16 +34,16 @@ namespace DOB_AutoRole.Core
 
             try
             {
-                var hc = new HttpClient();
-                var answer = await hc.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://[2a01:4f8:172:201b::10]/discord.php?apiKey={BotCore.Instance.Configuration.V5ApiKey}&authKey={token}"));
-                var html = await answer.Content.ReadAsStringAsync();
+                //get the user info object from the web APi
+                var tmpLicenseApi = new Helper.v5API.Licenses();
+                var rawUserInfo = await tmpLicenseApi.GetLicenseInfo(BotCore.Instance.Configuration.V5ApiKey, token);
+                //and parse as json object
+                dynamic userInfo = JObject.Parse(rawUserInfo);
+                //hold obsolete data for tmp info log output
+                var tmpOldLicense = License;
 
-                dynamic userInfo = JObject.Parse(html);
-
-                var oldLicense = License;
-
-                Debug(html);
-
+                Debug(rawUserInfo);
+                //did we get valid data back from the http api?
                 if ((bool)userInfo.result)
                 {
                     License = userInfo.type;
@@ -58,7 +57,7 @@ namespace DOB_AutoRole.Core
                     Username = "";
                 }
 
-                Info($"Old license: {oldLicense}; Changed to new license: {License}");
+                Info($"Changed old license {tmpOldLicense} to {License}.");
 
                 var guild = (from g in BotCore.Instance.Client.Guilds where g.Name == "DOB Darkorbit Bot" select g).FirstOrDefault();
                 var user = guild.GetUser(Id);
@@ -84,13 +83,16 @@ namespace DOB_AutoRole.Core
             await UpdateUserRole(Token);
         }
 
-        public async Task CheckInformUser()
+        /// <summary>
+        /// Encourage users without a bound discord account to do so via a personal message\r
+        /// </summary>
+        public async Task NotifyFFAUser()
         {
             Info($"Starting info check for user {Id}");
             Debug($"Last informed: {LastInformed}");
             Debug($"License: {License}");
 
-            // stop if license exists.
+            // stop if license exists
             if (UserSettingsHelper.Licenses.Contains(License))
                 return;
 
@@ -107,7 +109,7 @@ namespace DOB_AutoRole.Core
                 return; // Do not disturb 
             }
 
-            Info($"Remembering user {Id} to set license.");
+            Info($"Remembering user {Id} to bind a license to his discord account.");
             var channel = await user.CreateDMChannelAsync();
             await channel.SendMessageAsync($"Hi there. Your account is currently not bound to a DOB user/auth key. To change that reply in here with `!role <your auth key>` to assign your license in this chat. **Note: Do not post your auth key in a public channel!**");
 
