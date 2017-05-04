@@ -51,8 +51,8 @@ namespace DOB_AutoRole.Modules.ModModule
             return (await guild.GetTextChannelAsync(config.ModLog));
         }
 
-        [Command("check"), Summary("Checks if a user has mod access.")]
-        public async Task Check(string mention = null)
+        [Command("checkaccess"), Summary("Checks if a user can access the mod commands.")]
+        public async Task CheckAccess(string mention = null)
         {
             List<IGuildUser> users = new List<IGuildUser>();
 
@@ -184,12 +184,12 @@ namespace DOB_AutoRole.Modules.ModModule
                 //244 66 66
                 var eb = new EmbedBuilder()
                 {
-                    Color = new Color(255, 100, 0),
+                    Color = warning.Points > 0 ? new Color(255, 100, 0) : new Color(70, 245, 65),
                     ImageUrl = realUser.GetAvatarUrl(),
                     ThumbnailUrl = Context.User.GetAvatarUrl(ImageFormat.Png),
                     Title = $"{realUser.Username} (ID: {realUser.Id})"
                 };
-                
+
                 eb.AddField((efb) =>
                 {
                     efb.Name = "Channel";
@@ -225,12 +225,72 @@ namespace DOB_AutoRole.Modules.ModModule
                         efb.Name = "Reason";
                         efb.Value = $"{reason}";
                     });
-                
+
 
                 await log.SendMessageAsync("A user has been warned", false, eb);
             }
+        }
 
+        [Command("check"), Summary("Checks a users warning points.")]
+        public async Task CheckUser(string mention = null)
+        {
+            await Context.Channel.TriggerTypingAsync();
 
+            var users = new List<ulong>();
+
+            if (Context.Message.MentionedUserIds.Count > 0 &&
+                HasModAccess(Context.Guild, await Context.Guild.GetUserAsync(Context.User.Id)))
+            {
+                users.AddRange(Context.Message.MentionedUserIds);
+            }
+            else
+            {
+                users.Add(Context.User.Id);
+            }
+
+            var roles = Context.Guild.Roles.OrderBy((r) => -r.Position);
+            var db = BotCore.Instance.Database.GetCollection<UserStats>("mod");
+
+            foreach (var id in users)
+            {
+                var du = await Context.Guild.GetUserAsync(id);
+                var c = new Color(102, 153, 204);
+
+                foreach (var r in roles)
+                {
+                    if (du.RoleIds.Contains(r.Id))
+                    {
+                        c = r.Color;
+                        break;
+                    }
+                }
+
+                var warnings = db.Find(x => x.UserId == id).Sum(warning => warning.Points);
+                var maxDate = db.Find(x => x.UserId == id).Max(warning => warning.DueDate);
+
+                var eb = new EmbedBuilder()
+                {
+                    Color = c,
+                    ThumbnailUrl = du.GetAvatarUrl(ImageFormat.Png),
+                    Title = $"{du.Username} (ID: {du.Id})"
+                };
+
+                eb.AddField((efb) =>
+                {
+                    efb.Name = "Active warning points";
+                    efb.Value = $"{warnings} points";
+                    efb.IsInline = true;
+                });
+
+                eb.AddField((efb) =>
+                {
+                    efb.Name = "Due date";
+                    efb.Value = $"{maxDate}";
+                    efb.IsInline = true;
+                });
+
+                await Context.Channel.SendMessageAsync("", false, eb);
+            }
         }
     }
 }
