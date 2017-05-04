@@ -26,6 +26,10 @@ namespace DOBAR.Core
 
         public async Task UpdateUserRole(string token, bool updateToken = true)
         {
+            //did we get kind of valid data?
+            if (token == null || string.IsNullOrEmpty(token))
+                return;
+
             Info($"Start updating user {Id}.");
             Debug($"Token: {token} (current: {Token}");
 
@@ -37,16 +41,19 @@ namespace DOBAR.Core
                 //get the user info object from the web APi
                 var tmpLicenseApi = new Helper.v5API.Licenses();
                 var rawUserInfo = await tmpLicenseApi.GetLicenseInfo(BotCore.Instance.Configuration.V5ApiKey, token);
-                //and parse as json object, if valid
-                dynamic userInfo = null;
-                if(rawUserInfo != null && !string.IsNullOrEmpty(rawUserInfo))
+                
+                if(rawUserInfo == null || string.IsNullOrEmpty(rawUserInfo))
                 {
-                    userInfo = JObject.Parse(rawUserInfo);
+                    Info("We didn't receive valid user Info for the given token " + token);
+                    return;
                 }
+
+                //and parse as json object
+                dynamic userInfo = JObject.Parse(rawUserInfo);
                 //hold obsolete data for tmp info log output
                 var tmpOldLicense = License;
-
                 Debug(rawUserInfo);
+
                 //did we get valid data back from the http api?
                 if ((bool)userInfo.result)
                 {
