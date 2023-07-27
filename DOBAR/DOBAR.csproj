@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="1.0.0-rc" />
-    <PackageReference Include="LiteDB" Version="3.1.0" />
+    <PackageReference Include="LiteDB" Version="5.0.13" />
   </ItemGroup>
 
 </Project>
